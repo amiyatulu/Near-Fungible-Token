@@ -9,7 +9,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 near-sdk = '3.1.0'
-near-contract-standards = { path = "../../near-contract-standards"}
+near-contract-standards = { path = "../near-contract-standards"}
 # near-sdk = { version = "=3.0.0-pre.3" }
 # near-contract-standards = { version = "=3.0.0-pre.3"}
 

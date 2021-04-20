@@ -44,4 +44,14 @@ impl Contract {
         // Transferring NEAR and refunding 1 yoctoNEAR.
         Promise::new(account_id).transfer(amount + 1)
     }
+
+    pub fn change_burn_percentage_w_near(&mut self, value:U128) {
+        self.ft.change_burn_percentage(value.into());
+    }
+
+    pub fn register_account(&mut self, account_id: ValidAccountId) {
+
+        self.ft.internal_register_account(account_id.as_ref());
+
+    }
 }

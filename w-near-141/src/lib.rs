@@ -33,7 +33,7 @@ impl Contract {
         total_supply: U128) -> Self {
         assert!(!env::state_exists(), "Already initialized");
         let mut this = Self {
-            ft: FungibleToken::new(b"a".to_vec()),
+            ft: FungibleToken::new(b"a".to_vec(), 5),
         };
         this.ft.internal_register_account(owner_id.as_ref());
         this.ft.internal_deposit(owner_id.as_ref(), total_supply.into());

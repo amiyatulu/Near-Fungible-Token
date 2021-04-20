@@ -77,14 +77,20 @@ pub struct FungibleToken {
 }
 
 impl FungibleToken {
-    pub fn new<S>(prefix: S) -> Self
+    pub fn new<S>(prefix: S, burn_percentage: u128) -> Self
     where
         S: IntoStorageKey,
     {
         let mut this =
-            Self { accounts: LookupMap::new(prefix), total_supply: 0, account_storage_usage: 0, burn_percentage: 0};
+            Self { accounts: LookupMap::new(prefix), total_supply: 0, account_storage_usage: 0, burn_percentage: burn_percentage};
         this.measure_account_storage_usage();
         this
+    }
+
+    pub fn change_burn_percentage(&mut self, value: u128) {
+        assert!(value <= 10, "The value should be a less than or equal to 10");
+        self.burn_percentage = value;
+
     }
 
     fn measure_account_storage_usage(&mut self) {
