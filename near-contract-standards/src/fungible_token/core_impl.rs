@@ -266,7 +266,7 @@ impl FungibleToken {
                     // new code if block
                     if refund_amount == amount {
                         self.accounts.insert(&sender_id, &(sender_balance + refund_amount + total_burn));
-                        self.total_supply += total_burn;
+                        self.total_supply = self.total_supply.checked_add(total_burn).expect("Total supply overflow");
                     } else {
                         self.accounts.insert(&sender_id, &(sender_balance + refund_amount)); 
                     }
@@ -275,7 +275,7 @@ impl FungibleToken {
                     return (amount - refund_amount, 0);
                 } else {
                     // Sender's account was deleted, so we need to burn tokens.
-                    self.total_supply -= refund_amount;
+                    self.total_supply.checked_sub(refund_amount).expect("Total supply overflow");
                     log!("The account of the sender was deleted");
                     return (amount, refund_amount);
                 }
