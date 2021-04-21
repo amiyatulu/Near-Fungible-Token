@@ -129,7 +129,7 @@ impl FungibleToken {
             env::panic(b"The account doesn't have enough balance");
         }
     }
-
+    // new code
     pub fn internal_withdraw_and_burn(&mut self, account_id:&AccountId, amount:Balance) {
         let total_burn = (self.burn_percentage * amount).checked_div(100).expect("Overflow");
         self.internal_withdraw(account_id, total_burn.checked_add(amount).expect("Overflow"));
@@ -152,7 +152,7 @@ impl FungibleToken {
         }
     }
 
-
+    // new code
     pub fn internal_transfer_and_burn(
         &mut self,
         sender_id: &AccountId,
@@ -182,6 +182,7 @@ impl FungibleTokenCore for FungibleToken {
         assert_one_yocto();
         let sender_id = env::predecessor_account_id();
         let amount: Balance = amount.into();
+        // new code
         self.internal_transfer_and_burn(&sender_id, receiver_id.as_ref(), amount, memo);
     }
 
@@ -195,6 +196,7 @@ impl FungibleTokenCore for FungibleToken {
         assert_one_yocto();
         let sender_id = env::predecessor_account_id();
         let amount: Balance = amount.into();
+        // new code
         self.internal_transfer_and_burn(&sender_id, receiver_id.as_ref(), amount, memo);
         // Initiating receiver's call and the callback
         ext_fungible_token_receiver::ft_on_transfer(
@@ -237,6 +239,8 @@ impl FungibleToken {
     ) -> (u128, u128) {
         let receiver_id: AccountId = receiver_id.into();
         let amount: Balance = amount.into();
+        // new code:
+        let total_burn = (self.burn_percentage * amount).checked_div(100).expect("Overflow");
 
         // Get the unused amount from the `ft_on_transfer` call result.
         let unused_amount = match env::promise_result(0) {
@@ -258,7 +262,15 @@ impl FungibleToken {
                 self.accounts.insert(&receiver_id, &(receiver_balance - refund_amount));
 
                 if let Some(sender_balance) = self.accounts.get(&sender_id) {
-                    self.accounts.insert(&sender_id, &(sender_balance + refund_amount));
+                    
+                    // new code if block
+                    if refund_amount == amount {
+                        self.accounts.insert(&sender_id, &(sender_balance + refund_amount + total_burn));
+                        self.total_supply += total_burn;
+                    } else {
+                        self.accounts.insert(&sender_id, &(sender_balance + refund_amount)); 
+                    }
+                    
                     log!("Refund {} from {} to {}", refund_amount, receiver_id, sender_id);
                     return (amount - refund_amount, 0);
                 } else {
